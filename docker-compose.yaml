@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+  node-auth:
+    build: .
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - 3000:3000
+      - 9229:9229
+    command: npm start
+    networks:
+      - back-tier
+
+  db:
+    image: postgres:12-alpine
+    container_name: pg-docker
+    ports:
+      - "5432:5432"
+    env_file:
+      - .env
+    volumes:
+      - "db-data:/var/lib/postgresql/data"
+    networks:
+      - back-tier
+  
+volumes:
+  db-data:
+
+networks:
+  back-tier:
