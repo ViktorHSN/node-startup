@@ -2,7 +2,9 @@ version: '3'
 
 services:
   node-auth:
-    build: .
+    build: 
+        dockerfile: Dockerfile
+        context: .
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules

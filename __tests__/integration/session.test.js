@@ -1,22 +1,39 @@
+const request = require('supertest');
+
+const app = require('../../src/app');
+
 const {
     User
 } = require('../../src/models');
 
+const truncate = require('../utils/truncate');
+
+
 describe('Authentication', () => {
 
-    it("should create user", async () => {
+    beforeEach(async () => {
+        await truncate();
+    });
 
-        console.log(process.env.NODE_ENV);
+    it('should authenticate with valid credentials', async () => {
 
         const user = await User.create({
-            name: "Rodolfo",
-            email: "rras@cin.ufpe.br",
-            password_hash: "123456"
+            name: "Victor",
+            email: "agahagah@gmail.com",
+            password: "123456"
         });
 
-        console.log(user);
+        const response = await request(app).post('/sessions').send({
+            email: user.email,
+            password: '123456'
+        });
 
-        expect(user.email).toBe("rras@cin.ufpe.br");
+        expect(response.status).toBe(200);
+
+    });
+
+    it('should fail when logging in with invalid password', async () => {
+
     });
 
 
