@@ -2,31 +2,44 @@ const {
     User
 } = require('../models');
 
-const bcrypt = require('bcryptjs');
-
 class SessionController {
     async store(req, res) {
         try {
 
+            const {
+                email,
+                password
+            } = req.body;
+
             const user = await User.findOne({
                 where: {
-                    email: req.body.email
+                    email: email
                 }
             });
 
             if (!user) {
                 //User not found, not registered.
-                return res.status(404).send();
+                return res.status(401).json({
+                    message: 'User not found'
+                });
             }
 
-            let isEqual = await bcrypt.compare(req.body.password, user.password_hash);
-            if (isEqual) {
-                //Authenticated
-                return res.status(200).send();
+            let isValidPassword = await user.checkPassword(password);
+
+            if (isValidPassword) {
+                //User authenticated
+                return res.status(200).json({
+                    email: user.email,
+                    name: user.name,
+                    token: user.generateToken()
+                });
             }
+
 
             //User login attempt failed, wrong password or email.
-            return res.status(203).send();
+            return res.status(401).json({
+                message: "Incorrect password"
+            });
 
         } catch (error) {
             console.log(error.message);
